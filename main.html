@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="no-js">
+
+	<head>
+	<link href="https://fonts.googleapis.com/css?family=Cinzel" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Do+Hyeon" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Do+Hyeon|Inknut+Antiqua" rel="stylesheet">
+
+		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+  <script src="https://apis.google.com/js/api:client.js"></script>
+  <script>
+  /*eslint-disable no-invalid-this, no-redeclare, no-undef-expression, no-unused-vars, semi, no-native-reassign*/
+  /*eslint-env jquery */
+  /*globals auth2 postAJAX gapi*/
+  var googleUser = {};
+  
+  
+  function onSignIn(googleUser) {
+        // Useful data for your client-side scripts:
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
+
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+        postAJAX('/server/sign-in', {id_token: id_token})
+        .then(function(user) {
+            // The user is now signed in on the server too
+            // and the user should now have a session cookie
+            // for the whole site. 
+            document.location.href =  "https://8080-dot-4269277-dot-devshell.appspot.com/"+ user.username
+        })
+        
+      
+      }
+  var startApp = function() {
+    gapi.load('auth2', function(){
+      // Retrieve the singleton for the GoogleAuth library and set up the client.
+      auth2 = gapi.auth2.init({
+        client_id: '787902294843-lghv98qka3s1o0u7s3g9j411eim2771a.apps.googleusercontent.com',
+        cookiepolicy: 'single_host_origin',
+        // Request scopes in addition to 'profile' and 'email'
+        //scope: 'additional_scope'
+      });
+      attachSignin(document.getElementById('customBtn'));
+    });
+  };
+
+  function attachSignin(element) {
+    console.log(element.id);
+    auth2.attachClickHandler(element, {},
+        function(googleUser) {
+          document.getElementById('name').innerText = "Signed in: " +
+              googleUser.getBasicProfile().getName();
+        }, function(error) {
+          alert(JSON.stringify(error, undefined, 2));
+          
+        });
+  }
+  
+  
+ 
+  </script>
+  <style type="text/css">
+    #customBtn {
+      display: inline-block;
+      background: white;
+      color: #444;
+      width: 190px;
+      border-radius: 5px;
+      border: thin solid #888;
+      box-shadow: 1px 1px 1px grey;
+      white-space: nowrap;
+    }
+    #customBtn:hover {
+      cursor: pointer;
+    }
+    span.label {
+      font-family: serif;
+      font-weight: normal;
+    }
+    span.icon {
+      background: url("https://developers.google.com/identity/images/btn_google_signin_light_normal_web.png") transparent 5px 50% no-repeat;
+      display: inline-block;
+      vertical-align: middle;
+      width: 42px;
+      height: 42px;
+    }
+    span.buttonText {
+      display: inline-block;
+      vertical-align: middle;
+      padding-left: 42px;
+      padding-right: 42px;
+      font-size: 14px;
+      font-weight: bold;
+      /* Use the Roboto font that is loaded in the <head> */
+      font-family: 'Roboto', sans-serif;
+    }
+  </style>
+
+<script type="text/javascript">
+var Messenger = function(el){
+  'use strict';
+  var m = this;
+  
+  m.init = function(){
+    m.codeletters = "&#*+%?£@§$";
+    m.message = 0;
+    m.current_length = 0;
+    m.fadeBuffer = false;
+    m.messages = [
+      'This is a message, which can be long and all.',
+      'This could be another message.',
+      'Also short ones work!',
+      'Cool.'
+    ];
+    
+    setTimeout(m.animateIn, 100);
+  };
+  
+  m.generateRandomString = function(length){
+    var random_text = '';
+    while(random_text.length < length){
+      random_text += m.codeletters.charAt(Math.floor(Math.random()*m.codeletters.length));
+    } 
+    
+    return random_text;
+  };
+  
+  m.animateIn = function(){
+    if(m.current_length < m.messages[m.message].length){
+      m.current_length = m.current_length + 2;
+      if(m.current_length > m.messages[m.message].length) {
+        m.current_length = m.messages[m.message].length;
+      }
+      
+      var message = m.generateRandomString(m.current_length);
+      $(el).html(message);
+      
+      setTimeout(m.animateIn, 20);
+    } else { 
+      setTimeout(m.animateFadeBuffer, 20);
+    }
+  };
+  
+  m.animateFadeBuffer = function(){
+    if(m.fadeBuffer === false){
+      m.fadeBuffer = [];
+      for(var i = 0; i < m.messages[m.message].length; i++){
+        m.fadeBuffer.push({c: (Math.floor(Math.random()*12))+1, l: m.messages[m.message].charAt(i)});
+      }
+    }
+    
+    var do_cycles = false;
+    var message = ''; 
+    
+    for(var i = 0; i < m.fadeBuffer.length; i++){
+      var fader = m.fadeBuffer[i];
+      if(fader.c > 0){
+        do_cycles = true;
+        fader.c--;
+        message += m.codeletters.charAt(Math.floor(Math.random()*m.codeletters.length));
+      } else {
+        message += fader.l;
+      }
+    }
+    
+    $(el).html(message);
+    
+    if(do_cycles === true){
+      setTimeout(m.animateFadeBuffer, 50);
+    } else {
+      setTimeout(m.cycleText, 2000);
+    }
+  };
+  
+  m.cycleText = function(){
+    m.message = m.message + 1;
+    if(m.message >= m.messages.length){
+      m.message = 0;
+    }
+    
+    m.current_length = 0;
+    m.fadeBuffer = false;
+    $(el).html('');
+    
+    setTimeout(m.animateIn, 200);
+  };
+  
+  m.init();
+}
+
+console.clear();
+var messenger = new Messenger($('#messenger'));
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+    font-family: "Lato", sans-serif;
+    background-image: url(https://www.google.com/url?sa=i&source=images&cd=&cad=rja&uact=8&ved=2ahUKEwjY-7zZgfPcAhUmGTQIHWiSDMcQjRx6BAgBEAU&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DbpZIGBJVErY&psig=AOvVaw0CzZlD5A1Rvnkwk_oNGg5o&ust=1534558407268801)
+}
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+</style>
+</head>
+
+
+
+	<meta name="google-signin-client_id" content "787902294843-lghv98qka3s1o0u7s3g9j411eim2771a.apps.googleusercontent.com">
+
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+  	<!-- Facebook and Twitter integration -->
+	<meta property="og:title" content=""/>
+	<meta property="og:image" content=""/>
+	<meta property="og:url" content=""/>
+	<meta property="og:site_name" content=""/>
+	<meta property="og:description" content=""/>
+	<meta name="twitter:title" content="" />
+	<meta name="twitter:image" content="" />
+	<meta name="twitter:url" content="" />
+	<meta name="twitter:card" content="" />
+
+	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+	<link rel="shortcut icon" href="favicon.ico">
+
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
+
+	<!-- Animate.css -->
+
+	<link rel="stylesheet" href="static/css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="static/css/icomoon.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="static/css/bootstrap.css">
+	<!-- Superfish -->
+	<link rel="stylesheet" href="static/css/superfish.css">
+	<!-- Magnific Popup -->
+	<link rel="stylesheet" href="static/css/magnific-popup.css">
+
+	<link rel="stylesheet"text="text/css" href="static/css/style.css">
+
+
+	<!-- Modernizr JS -->
+	<script src="js/modernizr-2.6.2.min.js"></script>
+	<!-- FOR IE9 below -->
+	<!--[if lt IE 9]>
+	<script src="js/respond.min.js"></script>
+	<![endif]-->
+
+	</head>
+
+	<body>
+
+		<div id="fh5co-wrapper">
+		<div id="fh5co-page">
+
+		<div class="fh5co-hero">
+			<div class="fh5co-overlay"></div>
+			<div class="fh5co-cover text-center" data-stellar-background-ratio="0.5" style="background-image: url()">
+				<div class="desc animate-box"
+					<div class="container">
+						<div class="col-md-10 col-md-offset-1">
+
+							<a href="index.html" id="main-logo"></a>
+							<div class="animate-box">
+							<div class="text">
+
+</div>
+								<div id="mySidenav" class="sidenav">
+								
+								 <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+								 <a href="index.html">About</a>
+  								 <a href="#">Roomates</a>
+   								 <a href="#"">Contact</a>
+   								 <a href="static/Maps.html">Maps</a>
+								<h2>Roomy</h2>
+								</div>
+								<img src="" alt="Italian Trulli">
+								<h2>Roomy</h2>
+<p>Click on the element below to open the side navigation menu.</p>
+<div align="right">
+<span style="font-size:30px;cursor:pointer" onclick="openNav()">&#9776; open</span>
+</div>
+<script>
+function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+}
+</script>
+								<!-- In the callback, you would hide the gSignInWrapper element on a
+ successful sign in -->
+ <div id="gSignInWrapper">
+	 <span class="label">Sign in with:</span>
+	 <div id="customBtn" class="customGPlusSignIn">
+		 <span class="icon"></span>
+		 <span class="buttonText">Google</span>
+	 </div>
+ </div>
+ <div id="name"></div>
+ 
+ <script>startApp();</script>
+								<p><a $("#google-login-button").on('click', function()>Get Started</a></p>
+						
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		 </div>
+		 </div>
+		</div>
+
+
+	
+
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</header>
+
+		<!-- end:header-top -->
+
+
+
+
+
+
+
+
+
+</html>
